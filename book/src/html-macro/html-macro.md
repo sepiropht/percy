@@ -26,6 +26,27 @@ html! {
 }
 ```
 
+### Text literals
+
+Text literals can be typed directly into your html!
+
+```rust
+use virtual_dom_rs::prelude::*;
+
+let text_var = " world"
+
+html! {
+  Hello {
+    <div>
+      "Text literal"
+      r#"Another text literal"#
+    </div>
+  }
+}
+```
+
+
+
 ### Attributes
 
 Attributes work just like regular HTML.

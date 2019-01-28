@@ -2,7 +2,8 @@ use proc_macro2::{TokenStream, TokenTree};
 use syn::parse::{Parse, ParseStream, Result};
 use syn::spanned::Spanned;
 use syn::token::Brace;
-use syn::{braced, Block, Expr, Ident, Token};
+use syn::{braced, Block, Expr, Ident, Token, Lit};
+use quote::ToTokens;
 
 #[derive(Debug)]
 pub enum Tag {
@@ -15,6 +16,12 @@ pub enum Tag {
     ///
     ///  -> Hello world
     Text { text: String },
+    /// html! { <div> "Hello World" </div> }
+    ///
+    ///  -> Hello world
+    ///
+    /// A literal that can be converted into text
+    TextLit { lit: Lit },
     /// let text_var = VirtualNode::from("3");
     ///
     /// let iter_nodes =
@@ -66,6 +73,13 @@ impl Parse for Tag {
         // { node_inside_block }
         if input.peek(Brace) {
             return parse_block(&mut input);
+        }
+
+        // "Hello world"
+        if input.peek(Lit) {
+            let lit: Lit = input.parse()?;
+
+            return Ok(Tag::TextLit { lit });
         }
 
         return parse_text_node(&mut input);

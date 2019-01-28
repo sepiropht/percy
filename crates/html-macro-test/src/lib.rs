@@ -255,6 +255,23 @@ fn text_macro() {
     .test()
 }
 
+#[test]
+fn literal() {
+    HtmlMacroTest {
+        desc: "Can use text literals",
+        generated: html! { "Text literal" },
+        expected: VirtualNode::text("Text literal"),
+    }
+    .test();
+
+    HtmlMacroTest {
+        desc: "Can use text with quotation marks inside",
+        generated: html! { r#"Text with "quotes" here."#},
+        expected: VirtualNode::text(r#"Text with "quotes" here."#),
+    }
+    .test();
+}
+
 // Verify that all of our self closing tags work as both.
 // Self closing tags can be written as either <tag> and <tag />
 #[test]

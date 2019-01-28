@@ -204,6 +204,42 @@ impl HtmlParser {
 
                 *idx += 1;
             }
+            // FIXME: Normalize w/ above block
+            Tag::TextLit { lit } => {
+                if *idx == 0 {
+                    node_order.push(0);
+                    // TODO: This is just a consequence of bad code. We're pushing this to make
+                    // things work but in reality a text node isn't a parent ever.
+                    // Just need to make the code DRY / refactor so that we can make things make
+                    // sense vs. just bolting things together.
+                    parent_stack.push((0, Ident::new("unused", Span::call_site())));
+                }
+
+                // TODO: Figure out how to use spans
+                let var_name = Ident::new(format!("node_{}", idx).as_str(), Span::call_site());
+
+                let text_node = quote! {
+                    let mut #var_name = VirtualNode::text(#lit);
+                };
+
+                tokens.push(text_node);
+
+                if *idx == 0 {
+                    *idx += 1;
+                    return;
+                }
+
+                let parent_idx = &parent_stack[parent_stack.len() - 1];
+
+                node_order.push(*idx);
+
+                parent_to_children
+                    .get_mut(&parent_idx.0)
+                    .expect("Parent of this text node")
+                    .push(*idx);
+
+                *idx += 1;
+            }
             Tag::Braced { block } => block.stmts.iter().for_each(|stmt| {
                 if *idx == 0 {
                     // Here we handle a block being the root node of an `html!` call
