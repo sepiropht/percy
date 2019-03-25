@@ -3,6 +3,7 @@ use crate::tag::Attr;
 use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::Expr;
+use proc_macro::TokenStream;
 
 impl HtmlParser {
     /// Parse an incoming Tag::Open
@@ -41,8 +42,10 @@ impl HtmlParser {
                     let add_closure = quote! {
                         #[cfg(target_arch = "wasm32")]
                         {
+                          let underscores: Vec<TokenStream> = (0.._arg_count)
+                              .map(|| { quote! { _ } }).collect();
                           let closure = wasm_bindgen::prelude::Closure::wrap(
-                              Box::new(#value) as Box<FnMut(_)>
+                              Box::new(#value) as Box<FnMut( #(underscores),*)>
                           );
                           let closure_rc = std::rc::Rc::new(closure);
                           #var_name_node.as_velement_mut().expect("Not an element")

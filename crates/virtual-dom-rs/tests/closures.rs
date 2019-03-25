@@ -94,12 +94,12 @@ fn closure_not_dropped() {
 //
 // https://github.com/chinedufn/percy/issues/81
 //
-//#[wasm_bindgen_test]
-//fn closure_with_no_params_compiles() {
-//    let _making_sure_this_works = html! {
-//        <div onclick=|| {}></div>
-//    };
-//}
+#[wasm_bindgen_test]
+fn closure_with_no_params_compiles() {
+    let _making_sure_this_works = html! {
+        <div onclick=|| {}></div>
+    };
+}
 
 fn make_input_component(text_clone: Rc<RefCell<String>>) -> VirtualNode {
     html! {
